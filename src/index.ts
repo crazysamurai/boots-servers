@@ -1,5 +1,4 @@
 import express from "express";
-// import path from "path";
 import { middlewareLogResponse } from "./middleware/middlewareLogResponses.js";
 import { handlerReadiness } from "./api/readiness.js";
 import { handlerHits } from "./api/hits.js";
@@ -7,9 +6,17 @@ import { middlewareMetricsInc } from "./middleware/middlewareMetricsInc.js";
 import { resetHits } from "./api/resetHits.js";
 import { handlerChirpValidator } from "./api/chirpValidator.js";
 import { errorHandler } from "./middleware/middlewareErrorHandler.js";
+import { handlerCreateUser } from "./api/createUser.js";
+import postgres from "postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { config } from "./config.js";
+//client that runs migrations automatically upon server restarts
+const migrationClient = postgres(config.dbConfig.dbURL, { max: 1 });
+await migrate(drizzle(migrationClient), config.dbConfig.migrationConfig);
 
 const app = express();
-const PORT = 8080;
+const PORT = config.apiConfig.port;
 
 app.use(express.json()); //The middleware is smart. It typically only tries to parse the body if the request includes a Content-Type: application/json header. If a request comes in as plain text or an image, this specific middleware will usually ignore it and pass it to the next handler.
 app.use(middlewareLogResponse);
@@ -28,6 +35,9 @@ app.post("/admin/reset", async (req, res) => {
 });
 app.post("/api/validate_chirp", async (req, res) => {
   await handlerChirpValidator(req, res);
+});
+app.post("/api/users", async (req, res) => {
+  await handlerCreateUser(req, res);
 });
 
 app.use(errorHandler); //put errorHandler at the end of all, just above listen
