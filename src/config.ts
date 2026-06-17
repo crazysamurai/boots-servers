@@ -21,6 +21,7 @@ function envOrThrow(key: string) {
 const dbURL = envOrThrow("DB_URL");
 const port = Number(envOrThrow("PORT"));
 const platform = envOrThrow("PLATFORM");
+const jwtSecret = envOrThrow("JWT_SECRET");
 const migrationConfig: MigrationConfig = {
   migrationsFolder: "src/db/migrations",
 };
@@ -39,4 +40,5 @@ const apiConfig: APIConfig = {
 export const config = {
   apiConfig,
   dbConfig,
+  jwtSecret,
 };

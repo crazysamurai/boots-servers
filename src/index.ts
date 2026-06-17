@@ -4,9 +4,13 @@ import { handlerReadiness } from "./api/readiness.js";
 import { handlerHits } from "./api/hits.js";
 import { middlewareMetricsInc } from "./middleware/middlewareMetricsInc.js";
 import { resetHits } from "./api/resetHits.js";
-import { handlerChirpValidator } from "./api/chirpValidator.js";
+import { handlerCreateChirp } from "./api/createChirp.js";
+import { handlerGetChirps } from "./api/getChirps.js";
+import { handlerGetChirpById } from "./api/getChirpById.js";
 import { errorHandler } from "./middleware/middlewareErrorHandler.js";
 import { handlerCreateUser } from "./api/createUser.js";
+import { handlerLoginUser } from "./api/loginUser.js";
+
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -29,15 +33,24 @@ app.get("/admin/metrics", async (req, res) => {
 app.get("/api/healthz", async (req, res) => {
   await handlerReadiness(req, res);
 });
+app.get("/api/chirps", async (req, res) => {
+  await handlerGetChirps(req, res);
+});
+app.get("/api/chirps/:chirpId", async (req, res) => {
+  await handlerGetChirpById(req, res);
+});
 
 app.post("/admin/reset", async (req, res) => {
   await resetHits(req, res);
 });
-app.post("/api/validate_chirp", async (req, res) => {
-  await handlerChirpValidator(req, res);
-});
 app.post("/api/users", async (req, res) => {
   await handlerCreateUser(req, res);
+});
+app.post("/api/chirps", async (req, res) => {
+  await handlerCreateChirp(req, res);
+});
+app.post("/api/login", async (req, res) => {
+  await handlerLoginUser(req, res);
 });
 
 app.use(errorHandler); //put errorHandler at the end of all, just above listen

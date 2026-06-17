@@ -5,8 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1781434874205,
-      "tag": "0000_aberrant_mantis",
+      "when": 1781604096176,
+      "tag": "0000_bright_runaways",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781610024563,
+      "tag": "0001_slow_outlaw_kid",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781642867339,
+      "tag": "0002_same_stingray",
       "breakpoints": true
     }
   ]
