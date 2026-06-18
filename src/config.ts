@@ -11,6 +11,12 @@ type APIConfig = {
   platform: string;
 };
 
+type TokenConfig = {
+  accessTokenExpiration: number;
+  refreshTokenExpiration: number;
+  jwtSecret: string;
+};
+
 process.loadEnvFile();
 
 function envOrThrow(key: string) {
@@ -22,6 +28,9 @@ const dbURL = envOrThrow("DB_URL");
 const port = Number(envOrThrow("PORT"));
 const platform = envOrThrow("PLATFORM");
 const jwtSecret = envOrThrow("JWT_SECRET");
+const accessTokenExpiration = envOrThrow("ACCESS_TOKEN_EXPIRATION");
+const refreshTokenExpiration = envOrThrow("REFRESH_TOKEN_EXPIRATION");
+
 const migrationConfig: MigrationConfig = {
   migrationsFolder: "src/db/migrations",
 };
@@ -37,8 +46,14 @@ const apiConfig: APIConfig = {
   platform,
 };
 
+const tokenConfig: TokenConfig = {
+  accessTokenExpiration: Number(accessTokenExpiration),
+  refreshTokenExpiration: Number(refreshTokenExpiration),
+  jwtSecret,
+};
+
 export const config = {
   apiConfig,
   dbConfig,
-  jwtSecret,
+  tokenConfig,
 };

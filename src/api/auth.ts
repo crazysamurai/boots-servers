@@ -5,7 +5,14 @@ import {
   BadRequestError,
   UnauthorizedError,
 } from "../middleware/middlewareErrorHandler.js";
-import { Request } from "express";
+import { Request, Response } from "express";
+import { randomBytes } from "node:crypto";
+import {
+  getUserFromRefreshToken,
+  createRefreshToken,
+  setTokenRevoked,
+} from "../db/queries/refreshToken.js";
+import { config } from "../config.js";
 
 type Payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 
@@ -54,12 +61,46 @@ export function validateJWT(tokenString: string, secret: string): string {
   return decoded.sub;
 }
 
+export async function makeRefreshToken(userId: string) {
+  const token = randomBytes(32).toString("hex");
+  const refreshTokenExpiration = new Date(
+    Date.now() + config.tokenConfig.refreshTokenExpiration,
+  );
+  await createRefreshToken({
+    token,
+    userId,
+    expiresAt: refreshTokenExpiration,
+  });
+  return token;
+}
+
 export function getBearerToken(req: Request): string {
   const bearer: string | undefined = req?.headers?.authorization;
-  if (!bearer) throw new BadRequestError("missing auth token");
+  if (!bearer) throw new UnauthorizedError("missing auth token");
   const splitAuth = bearer.split(" ");
   if (splitAuth.length < 2 || splitAuth[0] !== "Bearer") {
     throw new BadRequestError("Malformed authorization header");
   }
   return splitAuth[1];
+}
+
+export async function handlerNewToken(req: Request, res: Response) {
+  const refreshToken: string = getBearerToken(req);
+  const user = await getUserFromRefreshToken(refreshToken);
+
+  if (!user || user.expiresAt < new Date(Date.now()) || user.revokedAt) {
+    throw new UnauthorizedError("unauthorized to create new refresh token");
+  }
+  const newAccessToken = makeJWT(
+    user.userId,
+    config.tokenConfig.accessTokenExpiration,
+    config.tokenConfig.jwtSecret,
+  );
+  res.status(200).json({ token: newAccessToken });
+}
+
+export async function handlerRevokeRefreshToken(req: Request, res: Response) {
+  const refreshToken = getBearerToken(req);
+  const result = await setTokenRevoked(refreshToken);
+  res.status(204).send();
 }

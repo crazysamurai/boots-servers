@@ -1,11 +1,7 @@
 import { Request, Response } from "express";
 import { cleanup } from "./profane.js";
-import {
-  BadRequestError,
-  UnauthorizedError,
-} from "../middleware/middlewareErrorHandler.js";
+import { BadRequestError } from "../middleware/middlewareErrorHandler.js";
 import { createChirp } from "../db/queries/chirp.js";
-import { getUser } from "../db/queries/users.js";
 import { getBearerToken, validateJWT } from "./auth.js";
 import { config } from "../config.js";
 
@@ -28,12 +24,8 @@ export async function handlerCreateChirp(req: Request, res: Response) {
   const chirp = payload.body;
   let userId;
 
-  try {
-    const token = getBearerToken(req);
-    userId = validateJWT(token, config.jwtSecret);
-  } catch (err) {
-    throw new UnauthorizedError("unauthorized to create chirp");
-  }
+  const token = getBearerToken(req);
+  userId = validateJWT(token, config.tokenConfig.jwtSecret);
 
   if (chirp.length > MAX_CHIRP_LENGTH) {
     throw new BadRequestError(

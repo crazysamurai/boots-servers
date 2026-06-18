@@ -22,4 +22,16 @@ export async function getUserByEmail(email: string) {
   if (result.length === 0) return;
   return result[0];
 }
-//Array destructuring is used to get the first item from the returned array. This is because drizzle returns an array of results, even if there is only one result.
+
+export async function updateUser(
+  userId: string,
+  email: string,
+  password: string,
+) {
+  const result = await db
+    .update(users)
+    .set({ hashedPassword: password, email: email })
+    .where(eq(users.id, userId))
+    .returning();
+  if (result.length === 0) throw new Error("user update failed");
+}

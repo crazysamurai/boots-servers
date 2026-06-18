@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getUserByEmail } from "../db/queries/users.js";
-import { checkPasswordHash, makeJWT } from "./auth.js";
+import { checkPasswordHash, makeJWT, makeRefreshToken } from "./auth.js";
 import {
   BadRequestError,
   UnauthorizedError,
@@ -10,22 +10,12 @@ import { config } from "../config.js";
 type Params = {
   email: string;
   password: string;
-  expiresInSeconds?: number; //seconds
 };
-
-const DEFAULT_EXPIRATION_LIMIT = 3600;
-const MAX_EXPIRATION_LIMIT = 3600;
 
 export async function handlerLoginUser(req: Request, res: Response) {
   const params: Params = req.body;
 
-  let duration = DEFAULT_EXPIRATION_LIMIT;
-  if (
-    params.expiresInSeconds &&
-    (!params.expiresInSeconds || params.expiresInSeconds > MAX_EXPIRATION_LIMIT)
-  ) {
-    duration = DEFAULT_EXPIRATION_LIMIT;
-  }
+  let duration = config.tokenConfig.accessTokenExpiration;
 
   if (!params.password || !params.email)
     throw new BadRequestError("missing field values to login");
@@ -38,19 +28,22 @@ export async function handlerLoginUser(req: Request, res: Response) {
     params.password,
     user.hashedPassword,
   );
-  const token = makeJWT(user.id, duration, config.jwtSecret);
+  const token = makeJWT(user.id, duration, config.tokenConfig.jwtSecret);
 
-  const data = {
+  const refreshToken = await makeRefreshToken(user.id);
+
+  const loginResponse = {
     id: user.id,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     email: user.email,
     token: token,
+    refreshToken: refreshToken,
   };
 
   if (doesPasswordMatch && token) {
-    res.status(200).json(data);
+    res.status(200).json(loginResponse);
   } else {
-    throw new UnauthorizedError("incorrect email or password");
+    throw new UnauthorizedError("login failed");
   }
 }
