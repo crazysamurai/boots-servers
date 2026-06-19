@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getBearerToken, validateJWT } from "./auth.js";
 import { config } from "../config.js";
-import { deleteChirpById, getChirpById } from "../db/queries/chirp.js";
+import { deleteChirpById, getChirpByChirpId } from "../db/queries/chirp.js";
 import { BadRequestError } from "../middleware/middlewareErrorHandler.js";
 
 export async function handlerDeleteChirp(req: Request, res: Response) {
@@ -13,7 +13,7 @@ export async function handlerDeleteChirp(req: Request, res: Response) {
 
   if (typeof chirpId !== "string") throw new BadRequestError("Invalid chirpId");
 
-  await getChirpById(chirpId);
+  await getChirpByChirpId(chirpId);
   await deleteChirpById(chirpId, userId);
 
   res.status(204).send();

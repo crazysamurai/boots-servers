@@ -16,10 +16,19 @@ export async function getAllChirps() {
   return result;
 }
 
-export async function getChirpById(chirpId: string) {
+export async function getChirpByChirpId(chirpId: string) {
   const result = await db.select().from(chirps).where(eq(chirps.id, chirpId));
   if (result.length === 0) throw new NotFoundError("Chirp not found");
   return result[0];
+}
+
+export async function getChirpByAuthorId(authorId: string) {
+  const result = await db
+    .select()
+    .from(chirps)
+    .where(eq(chirps.userId, authorId));
+  if (result.length === 0) throw new NotFoundError("No chirps exist");
+  return result;
 }
 
 export async function deleteChirpById(chirpId: string, userId: string) {
