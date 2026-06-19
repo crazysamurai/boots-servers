@@ -1,4 +1,11 @@
-import { pgTable, text, timestamp, varchar, uuid } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  varchar,
+  uuid,
+  boolean,
+} from "drizzle-orm/pg-core";
 
 export type NewUser = typeof users.$inferInsert;
 export type NewChirp = typeof chirps.$inferInsert;
@@ -15,6 +22,7 @@ export const users = pgTable("users", {
   hashedPassword: varchar("hashed_password", { length: 256 })
     .notNull()
     .default("unset"),
+  isChirpyRed: boolean("is_chirpy_red").default(false).notNull(),
 });
 
 export const chirps = pgTable("chirps", {

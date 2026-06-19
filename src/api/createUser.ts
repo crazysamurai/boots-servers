@@ -26,6 +26,7 @@ export async function handlerCreateUser(req: Request, res: Response) {
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     email: user.email,
+    isChirpyRed: user.isChirpyRed,
   };
 
   res.status(201).json(data);

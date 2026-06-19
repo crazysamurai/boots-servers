@@ -9,6 +9,7 @@ type APIConfig = {
   fileServerHits: number;
   port: number;
   platform: string;
+  polkaKey: string;
 };
 
 type TokenConfig = {
@@ -30,6 +31,7 @@ const platform = envOrThrow("PLATFORM");
 const jwtSecret = envOrThrow("JWT_SECRET");
 const accessTokenExpiration = envOrThrow("ACCESS_TOKEN_EXPIRATION");
 const refreshTokenExpiration = envOrThrow("REFRESH_TOKEN_EXPIRATION");
+const polkaKey = envOrThrow("POLKA_KEY");
 
 const migrationConfig: MigrationConfig = {
   migrationsFolder: "src/db/migrations",
@@ -44,6 +46,7 @@ const apiConfig: APIConfig = {
   fileServerHits: 0,
   port,
   platform,
+  polkaKey,
 };
 
 const tokenConfig: TokenConfig = {

@@ -13,6 +13,7 @@ import { handlerLoginUser } from "./api/loginUser.js";
 import { handlerNewToken, handlerRevokeRefreshToken } from "./api/auth.js";
 import { handlerUpdateUserDetails } from "./api/updateUser.js";
 import { handlerDeleteChirp } from "./api/deleteChirp.js";
+import { handlerPolkaEvent } from "./api/polkaWebhook.js";
 
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -61,6 +62,9 @@ app.post("/api/refresh", async (req, res) => {
 });
 app.post("/api/revoke", async (req, res) => {
   await handlerRevokeRefreshToken(req, res);
+});
+app.post("/api/polka/webhooks", async (req, res) => {
+  await handlerPolkaEvent(req, res);
 });
 
 app.put("/api/users", async (req, res) => {

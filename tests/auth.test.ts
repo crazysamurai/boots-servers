@@ -5,6 +5,7 @@ import {
   makeJWT,
   validateJWT,
   getBearerToken,
+  getAPIKey,
 } from "../src/api/auth.ts";
 import { Request } from "express";
 
@@ -56,5 +57,18 @@ describe("extract token from the Bearer", () => {
   it("should remove whitespace and bearer", async () => {
     const token = getBearerToken(req);
     expect(token).toBe("theActualTokenIsThisPart");
+  });
+});
+
+describe("extract apiKey", () => {
+  let req = {
+    headers: {
+      authorization: "ApiKey theActualKeyIsThisPart",
+    },
+  } as Partial<Request> as Request;
+
+  it("should remove whitespace and ApiKey", async () => {
+    const apiKey = getAPIKey(req);
+    expect(apiKey).toBe("theActualKeyIsThisPart");
   });
 });

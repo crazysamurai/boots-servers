@@ -104,3 +104,13 @@ export async function handlerRevokeRefreshToken(req: Request, res: Response) {
   const result = await setTokenRevoked(refreshToken);
   res.status(204).send();
 }
+
+export function getAPIKey(req: Request): string {
+  const APIKey: string | undefined = req?.headers?.authorization;
+  if (!APIKey) throw new UnauthorizedError("missing api key");
+  const splitAuth = APIKey.split(" ");
+  if (splitAuth.length < 2 || splitAuth[0] !== "ApiKey") {
+    throw new BadRequestError("Malformed authorization header");
+  }
+  return splitAuth[1];
+}
